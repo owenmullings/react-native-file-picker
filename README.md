@@ -68,7 +68,7 @@ public class MainActivity extends ReactActivity {
 1. In your React Native javascript code, bring in the native module:
 
   ```javascript
-const FilePickerManager = require('NativeModules').FilePickerManager;
+import FilePickerManager from 'react-native-file-picker';
   ```
 2. Use it like so:
 
@@ -95,3 +95,4 @@ const FilePickerManager = require('NativeModules').FilePickerManager;
 ## News
 ### Compatible with react-native < 0.40
 ### Compatible with files from Google Drive
+### Index.js added to ease up import
