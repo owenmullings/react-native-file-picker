@@ -5,11 +5,7 @@ Based on [react-native-image-picker](https://github.com/marcshilling/react-nativ
 ## Install
 
 ### iOS
-1. `npm install react-native-fille-picker@latest --save`
-2. In the XCode's "Project navigator", right click on your project's Libraries folder ➜ `Add Files to <...>`
-3. Go to `node_modules` ➜ `react-native-file-picker` ➜ `ios` ➜ select `RNFilePicker.xcodeproj`
-4. Add `RNFilePicker.a` to `Build Phases -> Link Binary With Libraries`
-5. Compile and have fun
+This component does not currently work on iOS, instead use [react-native-document-picker](https://github.com/Elyx0/react-native-document-picker)
 
 ### Android
 1. `npm install react-native-file-picker@latest --save`
@@ -72,7 +68,7 @@ public class MainActivity extends ReactActivity {
 1. In your React Native javascript code, bring in the native module:
 
   ```javascript
-var FilePickerManager = require('NativeModules').FilePickerManager;
+const FilePickerManager = require('NativeModules').FilePickerManager;
   ```
 2. Use it like so:
 
@@ -95,3 +91,7 @@ var FilePickerManager = require('NativeModules').FilePickerManager;
     }
   });
   ```
+
+## News
+### Compatible with react-native < 0.40
+### Compatible with files from Google Drive
