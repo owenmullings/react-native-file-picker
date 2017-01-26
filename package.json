@@ -2,11 +2,13 @@
   "name": "react-native-file-picker",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Lichwa/react-native-file-picker.git"
+    "url": "https://github.com/luisfuertes/react-native-file-picker"
   },
-  "version": "0.0.1",
-  "description": "A React Native module that allows you to use native UI to select file from the device library",
+  "version": "0.0.2",
+  "description": "A React Native module that allows you to use native UI to select file from the device library on Android",
   "nativePackage": true,
+  "author": "Luis Fuertes <luis.fuertes@clouddistrict.com>",
+  "license": "ISC",
   "keywords": [
     "react-native",
     "react-native-file-picker",
@@ -15,6 +17,9 @@
     "file",
     "picker"
   ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
   "devDependencies": {
     "react-native": "^0.21.0"
   }
