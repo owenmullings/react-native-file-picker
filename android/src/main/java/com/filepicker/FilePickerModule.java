@@ -269,6 +269,7 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
     }
 
     private String getFileFromUri(Activity activity, Uri uri){
+      //If it can't get path of file, file is saved in cache, and obtain path from there
       try {
         String filePath = activity.getCacheDir().toString();
         String fileName = getFileNameFromUri(activity, uri);

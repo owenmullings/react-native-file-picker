@@ -2,6 +2,8 @@
 A React Native module that allows you to use native UI to select a file from the device library
 Based on [react-native-image-picker](https://github.com/marcshilling/react-native-image-picker)
 
+Thanks to [@Lichwa](https://github.com/Lichwa) for creating this component
+
 ## Install
 
 ### iOS
@@ -75,7 +77,7 @@ import FilePickerManager from 'react-native-file-picker';
   When you want to display the picker:
   ```javascript
 
-  FilePickerManager.showFilePicker((response) => {
+  FilePickerManager.showFilePicker(null, (response) => {
     console.log('Response = ', response);
 
     if (response.didCancel) {
@@ -95,4 +97,4 @@ import FilePickerManager from 'react-native-file-picker';
 ## News
 ### Compatible with react-native < 0.40
 ### Compatible with files from Google Drive
-### Index.js added to ease up import
+### Index.js added to ease up import [(Thanks to @akki-ng)](https://github.com/Lichwa/react-native-file-picker/pull/2)
