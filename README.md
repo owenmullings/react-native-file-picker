@@ -2,7 +2,7 @@
 A React Native module that allows you to use native UI to select a file from the device library
 Based on [react-native-image-picker](https://github.com/marcshilling/react-native-image-picker)
 
-Thanks to @Lichwa for creating this component
+Thanks to [@Lichwa](https://github.com/Lichwa) for creating this component
 
 ## Install
 
