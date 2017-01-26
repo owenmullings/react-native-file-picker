@@ -106,30 +106,43 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
         }
     }
 
+    // R.N > 33
+    public void onActivityResult(final Activity activity, final int requestCode, final int resultCode, final Intent data) {
+      onActivityResult(requestCode, resultCode, data);
+    }
+
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
-        // user cancel
-        if (resultCode != Activity.RESULT_OK) {
-            response.putBoolean("didCancel", true);
-            mCallback.invoke(response);
-            return;
-        }
+      // user cancel
+      if (resultCode != Activity.RESULT_OK) {
+          response.putBoolean("didCancel", true);
+          mCallback.invoke(response);
+          return;
+      }
 
-        Activity currentActivity = getCurrentActivity();
+      Activity currentActivity = getCurrentActivity();
 
-        Uri uri;
+      Uri uri;
 
-        if (requestCode == REQUEST_LAUNCH_FILE_CHOOSER) {
-            uri = data.getData();
-            response.putString("uri", data.getData().toString());
-            String path = null;
-            path = getPath(currentActivity, uri);
-            if (path != null) {
-                response.putString("path", path);
+      if (requestCode == REQUEST_LAUNCH_FILE_CHOOSER) {
+          uri = data.getData();
+          response.putString("uri", data.getData().toString());
+          String path = null;
+          path = getPath(currentActivity, uri);
+          if (path != null) {
+            response.putString("path", path);
+          }else{
+            path = getFileFromUri(currentActivity, uri);
+            if(!path.equals("error")){
+              response.putString("path", path);
             }
-            mCallback.invoke(response);
-        }
+          }
+          mCallback.invoke(response);
+      }
     }
+
+
+
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static String getPath(final Context context, final Uri uri) {
@@ -255,35 +268,6 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
         return null;
     }
 
-    public void onActivityResult(Activity activity, final int requestCode, final int resultCode, final Intent data) {
-      // user cancel
-      if (resultCode != Activity.RESULT_OK) {
-          response.putBoolean("didCancel", true);
-          mCallback.invoke(response);
-          return;
-      }
-
-      Activity currentActivity = getCurrentActivity();
-
-      Uri uri;
-
-      if (requestCode == REQUEST_LAUNCH_FILE_CHOOSER) {
-          uri = data.getData();
-          response.putString("uri", data.getData().toString());
-          String path = null;
-          path = getPath(currentActivity, uri);
-          if (path != null) {
-            response.putString("path", path);
-          }else{
-            path = getFileFromUri(activity, uri);
-            if(!path.equals("error")){
-              response.putString("path", path);
-            }
-          }
-          mCallback.invoke(response);
-      }
-    }
-
     private String getFileFromUri(Activity activity, Uri uri){
       try {
         String filePath = activity.getCacheDir().toString();
@@ -315,7 +299,7 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
       try {
         InputStream is = activity.getContentResolver().openInputStream(uri);
         OutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
-        int bufferSize = 2048;
+        int bufferSize = 1024;
         byte[] buffer = new byte[bufferSize];
         int len = 0;
         while ((len = is.read(buffer)) != -1) {
