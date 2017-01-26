@@ -75,7 +75,7 @@ import FilePickerManager from 'react-native-file-picker';
   When you want to display the picker:
   ```javascript
 
-  FilePickerManager.showFilePicker((response) => {
+  FilePickerManager.showFilePicker(null, (response) => {
     console.log('Response = ', response);
 
     if (response.didCancel) {
