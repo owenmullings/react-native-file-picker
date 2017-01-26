@@ -1,6 +1,6 @@
 {
   "name": "react-native-file-picker",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A React Native module that allows you to use native UI to select file from the device library on Android",
   "main": "index.js",
   "repository": {
