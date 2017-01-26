@@ -44,12 +44,12 @@ dependencies {
     ...
 ```
 ```java
-// file: MainActivity.java
+// file: MainApplication.java
 ...
 
 import com.filepicker.FilePickerPackage; // import package
 
-public class MainActivity extends ReactActivity {
+public class MainApplication extends Application implements ReactApplication {
 
    /**
    * A list of packages used by the app. If the app uses additional views
