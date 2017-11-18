@@ -63,13 +63,20 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
         Activity currentActivity = getCurrentActivity();
         response = Arguments.createMap();
 
+        if (!permissionsCheck(currentActivity)) {
+            response.putBoolean("didRequestPermission", true);
+            response.putString("option", "launchFileChooser");
+            callback.invoke(response);
+            return;
+        }
+
         if (currentActivity == null) {
             response.putString("error", "can't find current Activity");
             callback.invoke(response);
             return;
         }
 
-                launchFileChooser(callback);
+        launchFileChooser(callback);
     }
 
     // NOTE: Currently not reentrant / doesn't support concurrent requests
@@ -138,6 +145,10 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
               response.putString("path", path);
           }
       }
+
+      response.putString("type", currentActivity.getContentResolver().getType(uri));
+      response.putString("fileName", getFileNameFromUri(currentActivity, uri));
+
       mCallback.invoke(response);
     }
 
