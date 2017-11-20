@@ -1,5 +1,6 @@
 package com.filepicker;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -8,12 +9,14 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.widget.ArrayAdapter;
 
@@ -53,6 +56,24 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
         mReactContext = reactContext;
     }
 
+    private boolean permissionsCheck(Activity activity) {
+        int readPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.READ_EXTERNAL_STORAGE);
+        int writePermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        int cameraPermission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.CAMERA);
+        if (writePermission != PackageManager.PERMISSION_GRANTED
+                || cameraPermission != PackageManager.PERMISSION_GRANTED
+                || readPermission != PackageManager.PERMISSION_GRANTED) {
+            String[] PERMISSIONS = {
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.CAMERA
+            };
+            ActivityCompat.requestPermissions(activity, PERMISSIONS, 1);
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public String getName() {
         return "FilePickerManager";
@@ -63,13 +84,20 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
         Activity currentActivity = getCurrentActivity();
         response = Arguments.createMap();
 
+        if (!permissionsCheck(currentActivity)) {
+            response.putBoolean("didRequestPermission", true);
+            response.putString("option", "launchFileChooser");
+            callback.invoke(response);
+            return;
+        }
+
         if (currentActivity == null) {
             response.putString("error", "can't find current Activity");
             callback.invoke(response);
             return;
         }
 
-                launchFileChooser(callback);
+        launchFileChooser(callback);
     }
 
     // NOTE: Currently not reentrant / doesn't support concurrent requests
@@ -138,6 +166,10 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
               response.putString("path", path);
           }
       }
+
+      response.putString("type", currentActivity.getContentResolver().getType(uri));
+      response.putString("fileName", getFileNameFromUri(currentActivity, uri));
+
       mCallback.invoke(response);
     }
 
