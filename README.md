@@ -94,3 +94,5 @@ const FilePickerManager = require('NativeModules').FilePickerManager;
 ## News
 ### Compatible with all versions of RN
 ### Compatible with files from Google Drive
+### Requesting permission if not exist
+### Retrieving fileName and file type
