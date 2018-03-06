@@ -67,7 +67,7 @@ public class MainApplication extends Application implements ReactApplication {
 1. In your React Native javascript code, bring in the native module:
 
   ```javascript
-const FilePickerManager = require('NativeModules').FilePickerManager;
+import FilePickerManager from 'react-native-file-picker';
   ```
 2. Use it like so:
 
