@@ -92,6 +92,7 @@ import FilePickerManager from 'react-native-file-picker';
   ```
 
 ## News
+### Compatible with Android O
 ### Compatible with all versions of RN
 ### Compatible with files from Google Drive
 ### Requesting permission if not exist
