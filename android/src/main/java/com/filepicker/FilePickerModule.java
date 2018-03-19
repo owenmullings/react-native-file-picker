@@ -200,10 +200,16 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
             else if (isDownloadsDocument(uri)) {
 
                 final String id = DocumentsContract.getDocumentId(uri);
-                final Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                final String[] split = id.split(":");
+                final String type = split[0];
+                if ("raw".equalsIgnoreCase(type)) {
+                    return split[1];
+                } else {
+                    final Uri contentUri = ContentUris.withAppendedId(
+                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
-                return getDataColumn(context, contentUri, null, null);
+                    return getDataColumn(context, contentUri, null, null);
+                }
             }
             // MediaProvider
             else if (isMediaDocument(uri)) {
