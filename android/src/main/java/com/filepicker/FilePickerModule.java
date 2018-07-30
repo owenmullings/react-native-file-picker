@@ -55,6 +55,7 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
     @ReactMethod
     public void showFilePicker(final ReadableMap options, final Callback callback) {
         Activity currentActivity = getCurrentActivity();
+		String mimeType = options.hasKey("mimeType") ? options.getString("mimeType") : "*/*";
         response = Arguments.createMap();
 
         if (currentActivity == null) {
@@ -62,13 +63,12 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
             callback.invoke(response);
             return;
         }
-		
-		launchFileChooser(callback);
+		launchFileChooser(callback, mimeType);
     }
 
     // NOTE: Currently not reentrant / doesn't support concurrent requests
     @ReactMethod
-    public void launchFileChooser(final Callback callback) {
+    public void launchFileChooser(final Callback callback, final String mimeType) {
         int requestCode;
         Intent libraryIntent;
         response = Arguments.createMap();
@@ -82,7 +82,7 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
 
         requestCode = REQUEST_LAUNCH_FILE_CHOOSER;
         libraryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-        libraryIntent.setType("*/*");
+        libraryIntent.setType(mimeType);
         libraryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
         if (libraryIntent.resolveActivity(mReactContext.getPackageManager()) == null) {
