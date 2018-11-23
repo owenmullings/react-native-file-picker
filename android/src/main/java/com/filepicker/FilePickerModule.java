@@ -205,8 +205,9 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
                 if ("raw".equalsIgnoreCase(type)) {
                     return split[1];
                 } else {
+                    String prefix = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ? "file:///" : "content://";
                     final Uri contentUri = ContentUris.withAppendedId(
-                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                            Uri.parse(prefix + "downloads/public_downloads"), Long.valueOf(id));
 
                     return getDataColumn(context, contentUri, null, null);
                 }
@@ -299,6 +300,8 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
                 final int column_index = cursor.getColumnIndexOrThrow(column);
                 return cursor.getString(column_index);
             }
+	} catch(Exception e) {
+	    Log.e("FilePickerModule", "Failed to get cursor, so return null for path", e);
         } finally {
             if (cursor != null)
                 cursor.close();
