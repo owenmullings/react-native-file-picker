@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
+import android.content.ClipData;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -29,6 +30,12 @@ import com.facebook.react.bridge.WritableMap;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.BufferedOutputStream;
+import java.io.OutputStream;
 
 public class FilePickerModule extends ReactContextBaseJavaModule implements ActivityEventListener {
 
@@ -62,8 +69,8 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
             callback.invoke(response);
             return;
         }
-		
-		launchFileChooser(callback);
+
+        launchFileChooser(callback);
     }
 
     // NOTE: Currently not reentrant / doesn't support concurrent requests
@@ -82,6 +89,7 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
 
         requestCode = REQUEST_LAUNCH_FILE_CHOOSER;
         libraryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        libraryIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         libraryIntent.setType("*/*");
         libraryIntent.addCategory(Intent.CATEGORY_OPENABLE);
 
@@ -100,8 +108,17 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
         }
     }
 
+    // R.N > 33
+    public void onActivityResult(final Activity activity, final int requestCode, final int resultCode, final Intent data) {
+        onActivityResult(requestCode, resultCode, data);
+    }
+
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
 
+        //robustness code
+        if (mCallback == null || requestCode != REQUEST_LAUNCH_FILE_CHOOSER) {
+            return;
+        }
         // user cancel
         if (resultCode != Activity.RESULT_OK) {
             response.putBoolean("didCancel", true);
@@ -111,18 +128,37 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
 
         Activity currentActivity = getCurrentActivity();
 
-        Uri uri;
-
-        if (requestCode == REQUEST_LAUNCH_FILE_CHOOSER) {
-            uri = data.getData();
-            response.putString("uri", data.getData().toString());
-            String path = null;
-            path = getPath(currentActivity, uri);
-            if (path != null) {
-                response.putString("path", path);
+        ClipData clipData = data.getClipData();
+        if (clipData != null) {
+            for (int i = 0; i < clipData.getItemCount(); i++) {
+                ClipData.Item item = clipData.getItemAt(i);
+                Uri uri = item.getUri();
+                WritableMap file = processResponseData(currentActivity, uri);
+                response.putMap(Integer.toString(i), file);
             }
-            mCallback.invoke(response);
+        } else {
+            Uri uri = data.getData();
+            WritableMap file = processResponseData(currentActivity, uri);
+            response.putMap("0", file);
         }
+        mCallback.invoke(response);
+    }
+
+
+    private WritableMap processResponseData(Activity activity, Uri uri) {
+        WritableMap file = Arguments.createMap();
+        file.putString("uri", uri.toString());
+        String path = null;
+        path = getPath(activity, uri);
+        if (path != null) {
+            file.putString("path", path);
+        } else {
+            path = getFileFromUri(activity, uri);
+            if (!path.equals("error")) {
+                file.putString("path", path);
+            }
+        }
+        return file;
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -247,6 +283,61 @@ public class FilePickerModule extends ReactContextBaseJavaModule implements Acti
                 cursor.close();
         }
         return null;
+    }
+
+    private String getFileFromUri(Activity activity, Uri uri) {
+        //If it can't get path of file, file is saved in cache, and obtain path from there
+        try {
+            String filePath = activity.getCacheDir().toString();
+            String fileName = getFileNameFromUri(activity, uri);
+            String path = filePath + "/" + fileName;
+            if (!fileName.equals("error") && saveFileOnCache(path, activity, uri)) {
+                return path;
+            } else {
+                return "error";
+            }
+        } catch (Exception e) {
+            //Log.d("FilePickerModule", "Error getFileFromStream");
+            return "error";
+        }
+    }
+
+    private String getFileNameFromUri(Activity activity, Uri uri) {
+        Cursor cursor = activity.getContentResolver().query(uri, null, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            final int column_index = cursor.getColumnIndexOrThrow("_display_name");
+            return cursor.getString(column_index);
+        } else {
+            return "error";
+        }
+    }
+
+    private boolean saveFileOnCache(String path, Activity activity, Uri uri) {
+        //Log.d("FilePickerModule", "saveFileOnCache path: "+path);
+        try {
+            InputStream is = activity.getContentResolver().openInputStream(uri);
+            OutputStream stream = new BufferedOutputStream(new FileOutputStream(path));
+            int bufferSize = 1024;
+            byte[] buffer = new byte[bufferSize];
+            int len = 0;
+            while ((len = is.read(buffer)) != -1) {
+                stream.write(buffer, 0, len);
+            }
+
+            if (stream != null)
+                stream.close();
+
+            //Log.d("FilePickerModule", "saveFileOnCache done!");
+            return true;
+
+        } catch (Exception e) {
+            //Log.d("FilePickerModule", "saveFileOnCache error");
+            return false;
+        }
+    }
+
+    // Required for RN 0.30+ modules than implement ActivityEventListener
+    public void onNewIntent(Intent intent) {
     }
 
 }
